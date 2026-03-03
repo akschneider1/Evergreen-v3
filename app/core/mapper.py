@@ -181,11 +181,30 @@ def render_report(data: ReportData) -> str:
 <link href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-base-200 min-h-screen p-6">
-<div class="max-w-5xl mx-auto">
+<body class="bg-base-200 min-h-screen">
+
+<!-- Nav bar -->
+<div class="navbar bg-base-100 shadow-sm px-4 mb-6">
+  <div class="navbar-start">
+    <a href="/" class="text-xl font-bold text-primary">🌲 Evergreen</a>
+    <span class="ml-2 badge badge-ghost badge-sm">v3</span>
+  </div>
+  <div class="navbar-center hidden md:flex gap-2">
+    <a href="/" class="btn btn-ghost btn-sm">Benchmark Catalog</a>
+    <a href="/history" class="btn btn-ghost btn-sm">Run History</a>
+    <a href="/library" class="btn btn-ghost btn-sm">Team Library</a>
+  </div>
+  <div class="navbar-end gap-2">
+    <a href="/run/{data.run_id}/export/html" class="btn btn-outline btn-sm">Download HTML</a>
+    <a href="/run/{data.run_id}/export/pdf" class="btn btn-outline btn-sm">Download PDF</a>
+  </div>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 pb-8">
 
   <div class="mb-6">
-    <h1 class="text-3xl font-bold">{_esc(data.run_name)}</h1>
+    <a href="/history" class="text-sm text-base-content/50 hover:text-base-content">← Run History</a>
+    <h1 class="text-3xl font-bold mt-1">{_esc(data.run_name)}</h1>
     <p class="text-base-content/60 mt-1">
       {_esc(data.benchmark_display_name)} &middot; {_esc(data.model)}
       {f'&middot; {data.completed_at.strftime("%b %d, %Y %H:%M UTC")}' if data.completed_at else ''}

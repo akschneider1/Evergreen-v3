@@ -11,17 +11,10 @@
   </div>
 </div>
 {% elif job.status == "complete" %}
-<!-- Redirect automatically when complete -->
 <div class="alert alert-success mb-4">
-  <span>Evaluation complete!</span>
+  <span>Evaluation complete! Taking you to your report...</span>
 </div>
-<div hx-get="/run/{{ job_id }}/report"
-     hx-trigger="load"
-     hx-target="body"
-     hx-push-url="/run/{{ job_id }}/report"
-     hx-swap="outerHTML">
-  <p class="text-base-content/60">Loading your report...</p>
-</div>
+<script>window.location.href = "/run/{{ job_id }}/report";</script>
 {% else %}
 <div class="w-full">
   <progress class="progress progress-primary w-full mb-3" value="{{ job.percent }}" max="100"></progress>
