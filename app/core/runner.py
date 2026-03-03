@@ -11,6 +11,12 @@ from app.core import jobs as job_store
 from app.core.mapper import map_to_report, render_report
 
 
+def _get_engine():
+    """Lazy import to avoid circular dependency with app.main."""
+    from app.main import engine  # noqa: PLC0415
+    return engine
+
+
 # ---------------------------------------------------------------------------
 # Model name mapping: human-friendly UI value → Inspect model string
 # ---------------------------------------------------------------------------
@@ -74,77 +80,89 @@ def _load_task(inspect_task: str):
     raise ValueError(f"Unsupported inspect_task format: {inspect_task}")
 
 
-async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
+async def run_benchmark(run_id: str, job_id: str) -> None:
     """Execute an Inspect eval for the given Run, save HTML report to DB.
 
     Runs in a background task — never blocks the event loop.
+    Creates its own DB session so it isn't tied to the request lifecycle.
     Updates job state at each step so the progress page can poll it.
     """
     from inspect_ai import eval as inspect_eval  # deferred to avoid startup cost
     from app.core.catalog import get_benchmark
+    from datetime import datetime
 
-    try:
-        # Step 1 — resolve benchmark and model
-        job_store.update_job(job_id, step="Loading benchmark...", percent=5, status="running")
-        benchmark = get_benchmark(run.benchmark_id)
-        if benchmark is None:
-            raise ValueError(f"Benchmark not found: {run.benchmark_id}")
+    with Session(_get_engine()) as db:
+        run = db.get(Run, run_id)
+        if not run:
+            job_store.update_job(job_id, step="Run not found", percent=0, status="failed",
+                                 error="Run record missing from database.")
+            return
 
-        inspect_model = MODEL_MAP.get(run.model, run.model)
+        try:
+            # Step 1 — resolve benchmark and model
+            job_store.update_job(job_id, step="Loading benchmark...", percent=5, status="running")
+            benchmark = get_benchmark(run.benchmark_id)
+            if benchmark is None:
+                raise ValueError(f"Benchmark not found: {run.benchmark_id}")
 
-        # Step 2 — load the Inspect task object
-        job_store.update_job(job_id, step="Preparing evaluation...", percent=15, status="running")
-        task = _load_task(benchmark.inspect_task)
+            inspect_model = MODEL_MAP.get(run.model, run.model)
 
-        # Step 3 — run eval in thread pool (inspect_eval is blocking)
-        job_store.update_job(job_id, step="Connecting to model...", percent=25, status="running")
+            # Step 2 — load the Inspect task object
+            job_store.update_job(job_id, step="Preparing evaluation...", percent=15, status="running")
+            task = _load_task(benchmark.inspect_task)
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Step 3 — run eval in thread pool (inspect_eval is blocking)
+            job_store.update_job(job_id, step="Connecting to model...", percent=25, status="running")
+
+            limit = run.limit  # None = run all samples
+
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                sample_note = f" ({limit} questions)" if limit else ""
+                job_store.update_job(
+                    job_id,
+                    step=f"Running evaluations{sample_note} — this may take a few minutes...",
+                    percent=35,
+                    status="running",
+                )
+                logs = await asyncio.to_thread(
+                    inspect_eval,
+                    task,
+                    model=inspect_model,
+                    log_dir=tmp_dir,
+                    limit=limit,
+                )
+
+            # Step 4 — map results to report
+            job_store.update_job(job_id, step="Generating report...", percent=85, status="running")
+            log = logs[0]
+            report_data = map_to_report(log, run)
+            report_html = render_report(report_data)
+
+            # Step 5 — persist
+            job_store.update_job(job_id, step="Saving results...", percent=95, status="running")
+            run.status = "complete"
+            run.completed_at = datetime.utcnow()
+            run.pass_rate = report_data.overall_pass_rate
+            run.report_html = report_html
+            db.add(run)
+            db.commit()
+
+            job_store.update_job(job_id, step="Complete", percent=100, status="complete")
+
+        except Exception as exc:
+            tb = traceback.format_exc()
+            run.status = "failed"
+            run.error = tb
+            db.add(run)
+            db.commit()
             job_store.update_job(
                 job_id,
-                step="Running evaluations — this may take a few minutes...",
-                percent=35,
-                status="running",
+                step="Evaluation failed",
+                percent=0,
+                status="failed",
+                error=_classify_error(exc),
+                error_detail=tb,
             )
-            logs = await asyncio.to_thread(
-                inspect_eval,
-                task,
-                model=inspect_model,
-                log_dir=tmp_dir,
-            )
-
-        # Step 4 — map results to report
-        job_store.update_job(job_id, step="Generating report...", percent=85, status="running")
-        log = logs[0]
-        report_data = map_to_report(log, run)
-        report_html = render_report(report_data)
-
-        # Step 5 — persist
-        job_store.update_job(job_id, step="Saving results...", percent=95, status="running")
-        from datetime import datetime
-        run.status = "complete"
-        run.completed_at = datetime.utcnow()
-        run.pass_rate = report_data.overall_pass_rate
-        run.report_html = report_html
-        db.add(run)
-        db.commit()
-
-        job_store.update_job(job_id, step="Complete", percent=100, status="complete")
-
-    except Exception as exc:
-        tb = traceback.format_exc()
-        run.status = "failed"
-        run.error = tb  # full traceback stored in DB
-        db.add(run)
-        db.commit()
-        job_store.update_job(
-            job_id,
-            step="Evaluation failed",
-            percent=0,
-            status="failed",
-            error=_classify_error(exc),
-            error_detail=tb,
-        )
-        raise
+            raise
 
 

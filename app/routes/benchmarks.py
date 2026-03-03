@@ -79,6 +79,7 @@ async def start_run(
     benchmark_id: str = Form(...),
     model: str = Form(...),
     run_name: str = Form(...),
+    limit: Optional[int] = Form(None),
 ):
     """Validate form, create Run + job, kick off background eval, redirect to progress."""
     benchmark = get_benchmark(benchmark_id)
@@ -92,11 +93,22 @@ async def start_run(
     run_id = str(uuid.uuid4())
     job_id = str(uuid.uuid4())
 
-    run = Run(id=run_id, name=run_name.strip(), benchmark_id=benchmark_id, model=model)
+    # Clamp limit to a sane range; 0 or negative = run all
+    safe_limit = limit if (limit and limit > 0) else None
+
+    run = Run(
+        id=run_id,
+        name=run_name.strip(),
+        benchmark_id=benchmark_id,
+        model=model,
+        limit=safe_limit,
+    )
     db.add(run)
     db.commit()
 
     job_store.create_job(job_id, run_id)
-    background_tasks.add_task(run_benchmark, run, job_id, db)
+    # Pass only IDs — runner creates its own DB session to avoid
+    # using a closed request-scoped session mid-eval.
+    background_tasks.add_task(run_benchmark, run_id, job_id)
 
     return RedirectResponse(url=f"/run/{job_id}/progress", status_code=303)

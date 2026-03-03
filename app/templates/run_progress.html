@@ -9,7 +9,7 @@
   <!-- Status region — HTMX updates this every 2s -->
   <div id="status-region"
        hx-get="/run/{{ job_id }}/status"
-       hx-trigger="load, every 2s"
+       hx-trigger="load, every 3s"
        hx-swap="innerHTML">
     {% include "partials/run_status.html" %}
   </div>

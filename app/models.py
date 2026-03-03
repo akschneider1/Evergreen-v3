@@ -21,6 +21,7 @@ class Run(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None
     pass_rate: Optional[float] = None
+    limit: Optional[int] = None      # cap on samples evaluated; None = all
     error: Optional[str] = None
     report_html: Optional[str] = None
 
