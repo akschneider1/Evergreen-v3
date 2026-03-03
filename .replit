@@ -1,4 +1,6 @@
-modules = ["nodejs-20"]
+modules = ["python-3.11"]
+run = "uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload"
+
 [agent]
 expertMode = true
 

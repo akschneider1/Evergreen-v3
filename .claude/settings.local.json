@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:inspect.aisi.org.uk)",
+      "WebFetch(domain:meridianlabs-ai.github.io)",
+      "Bash(python3 -c \"import inspect_ai; print\\(inspect_ai.__version__\\)\" 2>&1)",
+      "Bash(git -C /home/runner/workspace log --oneline | head -10)",
+      "Bash(git -C /home/runner/workspace log --all --oneline | head -20)",
+      "Bash(git -C /home/runner/workspace show 2d8d13c --stat | head -50)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:ukgovernmentbeis.github.io)",
+      "Bash(git add CLAUDE.md && git rm PLAN.md && git add .replit)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nAdd CLAUDE.md and retire v2 research plan\n\nReplace the Evergreen v2 research document \\(PLAN.md\\) with CLAUDE.md —\na lean developer reference covering design principles, tech stack,\nfile structure, and definition of done for Evergreen v3. This\ncaptures the decisions made in the v3 brainstorm before development begins.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push origin main)"
+    ]
+  }
+}
