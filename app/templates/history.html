@@ -63,6 +63,25 @@
     </tbody>
   </table>
 </div>
+
+{% if total_pages > 1 %}
+<div class="flex items-center justify-between mt-4 text-sm">
+  <span class="text-base-content/50">Page {{ page }} of {{ total_pages }}</span>
+  <div class="join">
+    {% if has_prev %}
+    <a href="/history?page={{ page - 1 }}" class="join-item btn btn-sm btn-outline">← Prev</a>
+    {% else %}
+    <button class="join-item btn btn-sm btn-outline" disabled>← Prev</button>
+    {% endif %}
+    {% if has_next %}
+    <a href="/history?page={{ page + 1 }}" class="join-item btn btn-sm btn-outline">Next →</a>
+    {% else %}
+    <button class="join-item btn btn-sm btn-outline" disabled>Next →</button>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
 {% else %}
 <div class="text-center py-16 text-base-content/40">
   <p class="text-lg">No evaluations have been run yet.</p>

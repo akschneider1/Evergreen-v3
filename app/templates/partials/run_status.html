@@ -3,6 +3,11 @@
   <span>This run has expired or could not be found. <a href="/history" class="link">View run history</a></span>
 </div>
 {% elif job.status == "failed" %}
+<script>
+  /* Terminal state — stop HTMX polling immediately */
+  var r = document.getElementById('status-region');
+  if (r) { r.removeAttribute('hx-trigger'); htmx.process(r); }
+</script>
 <div class="alert alert-error items-start">
   <div class="w-full">
     <p class="font-semibold">The evaluation encountered an error.</p>

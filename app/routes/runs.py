@@ -1,8 +1,10 @@
 """Routes: run progress polling, report serving, history, and export."""
 
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.main import get_db, templates
 from app.core import jobs as job_store
@@ -57,13 +59,26 @@ async def view_report(job_id: str, db: Session = Depends(get_db)):
     return HTMLResponse(content=run.report_html)
 
 
+_PAGE_SIZE = 25
+
+
 @router.get("/history", response_class=HTMLResponse)
-async def history_page(request: Request, db: Session = Depends(get_db)):
-    """Run history page — all past runs for the team."""
-    runs = db.exec(select(Run).order_by(Run.created_at.desc()).limit(100)).all()
+async def history_page(request: Request, db: Session = Depends(get_db), page: int = 1):
+    """Run history page — paginated, 25 runs per page."""
+    page = max(1, page)
+    total = db.exec(select(func.count(Run.id))).one()
+    runs = db.exec(
+        select(Run).order_by(Run.created_at.desc())
+        .limit(_PAGE_SIZE)
+        .offset((page - 1) * _PAGE_SIZE)
+    ).all()
     return templates.TemplateResponse("history.html", {
         "request": request,
         "runs": runs,
+        "page": page,
+        "total_pages": max(1, -(-total // _PAGE_SIZE)),  # ceiling division
+        "has_prev": page > 1,
+        "has_next": (page * _PAGE_SIZE) < total,
     })
 
 
@@ -100,7 +115,10 @@ async def export_pdf(job_id: str, db: Session = Depends(get_db)):
     if not run or not run.report_html:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    pdf_bytes = WeasyprintHTML(string=run.report_html).write_pdf()
+    html_content = run.report_html
+    pdf_bytes = await asyncio.to_thread(
+        lambda: WeasyprintHTML(string=html_content).write_pdf()
+    )
     filename = f"evergreen-report-{run.name.lower().replace(' ', '-')}.pdf"
 
     return StreamingResponse(

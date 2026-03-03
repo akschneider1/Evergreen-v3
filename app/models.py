@@ -18,7 +18,7 @@ class Run(SQLModel, table=True):
     benchmark_id: str
     model: str
     status: str = "pending"          # pending | running | complete | failed
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"index": True})
     completed_at: Optional[datetime] = None
     pass_rate: Optional[float] = None
     limit: Optional[int] = None      # cap on samples evaluated; None = all

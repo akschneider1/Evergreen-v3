@@ -19,6 +19,7 @@ _SCHEMA_PATH = Path(__file__).parent.parent.parent / "catalog" / "schema.yaml"
 # ---------------------------------------------------------------------------
 
 _cache: list[BenchmarkEntry] = []
+_index: dict[str, BenchmarkEntry] = {}  # id → entry for O(1) lookups
 
 
 def load_catalog() -> list[BenchmarkEntry]:
@@ -27,7 +28,7 @@ def load_catalog() -> list[BenchmarkEntry]:
     Returns the list of valid BenchmarkEntry objects sorted by display_name.
     Invalid files are skipped with a warning rather than crashing the app.
     """
-    global _cache
+    global _cache, _index
 
     schema = yaml.safe_load(_SCHEMA_PATH.read_text())
     entries: list[BenchmarkEntry] = []
@@ -42,6 +43,7 @@ def load_catalog() -> list[BenchmarkEntry]:
         entries.append(BenchmarkEntry(**raw))
 
     _cache = sorted(entries, key=lambda e: e.display_name)
+    _index = {e.id: e for e in _cache}
     return _cache
 
 
@@ -53,8 +55,10 @@ def get_catalog() -> list[BenchmarkEntry]:
 
 
 def get_benchmark(benchmark_id: str) -> Optional[BenchmarkEntry]:
-    """Look up a single benchmark by id. Returns None if not found."""
-    return next((e for e in get_catalog() if e.id == benchmark_id), None)
+    """Look up a single benchmark by id. O(1) via dict index."""
+    if not _index:
+        load_catalog()
+    return _index.get(benchmark_id)
 
 
 def filter_benchmarks(

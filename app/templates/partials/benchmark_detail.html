@@ -52,22 +52,15 @@
         </button>
         <div id="advanced-{{ benchmark.id }}" class="hidden mt-3 p-3 bg-base-200 rounded-lg">
           <p class="text-xs text-base-content/50 mb-2">Advanced settings — defaults are fine for most evaluations.</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label"><span class="label-text text-xs">Number of questions</span></label>
-              <select name="limit" class="select select-bordered select-sm">
-                <option value="">All questions (full benchmark)</option>
-                <option value="10">10 questions — quick demo (~2 min)</option>
-                <option value="25">25 questions — fast (~5 min)</option>
-                <option value="50">50 questions — moderate (~10 min)</option>
-              </select>
-              <label class="label"><span class="label-alt text-xs">Limit samples for faster results during testing</span></label>
-            </div>
-            <div class="form-control">
-              <label class="label"><span class="label-text text-xs">Repeat runs (epochs)</span></label>
-              <input type="number" name="epochs" value="1" min="1" max="3" class="input input-bordered input-sm">
-              <label class="label"><span class="label-alt text-xs">Run 2–3 times for more reliable results</span></label>
-            </div>
+          <div class="form-control w-full sm:w-72">
+            <label class="label"><span class="label-text text-xs">Number of questions</span></label>
+            <select name="limit" class="select select-bordered select-sm">
+              <option value="">All questions (full benchmark)</option>
+              <option value="10">10 questions — quick demo (~2 min)</option>
+              <option value="25">25 questions — fast (~5 min)</option>
+              <option value="50">50 questions — moderate (~10 min)</option>
+            </select>
+            <label class="label"><span class="label-alt text-xs">Limit questions for faster results during testing</span></label>
           </div>
         </div>
       </div>

@@ -10,10 +10,21 @@ from app.models import JobStatus
 
 _jobs: dict[str, tuple[JobStatus, float]] = {}
 _TTL_SECONDS = 3600  # 1 hour
+_MAX_JOBS = 200       # hard cap — evict oldest-first above this
 
 
 def create_job(job_id: str, run_id: str) -> JobStatus:
-    """Create and register a new job, returning its initial JobStatus."""
+    """Create and register a new job, returning its initial JobStatus.
+
+    Runs TTL eviction and hard-cap eviction here so get_job() stays O(1).
+    """
+    _evict_expired()
+    # If still over cap after TTL eviction, drop the oldest jobs
+    if len(_jobs) >= _MAX_JOBS:
+        oldest = sorted(_jobs.items(), key=lambda kv: kv[1][1])
+        for jid, _ in oldest[:len(_jobs) - _MAX_JOBS + 1]:
+            del _jobs[jid]
+
     job = JobStatus(job_id=job_id, run_id=run_id, step="Starting...", percent=0, status="pending")
     _jobs[job_id] = (job, time.time())
     return job
@@ -37,8 +48,12 @@ def update_job(job_id: str, *, step: str, percent: int, status: str = "running",
 
 
 def get_job(job_id: str) -> Optional[JobStatus]:
-    """Return the current JobStatus, or None if not found or expired."""
-    _evict_expired()
+    """Return the current JobStatus, or None if not found or expired.
+
+    O(1) — eviction is handled in create_job(), not here.
+    A job that has passed TTL but hasn't been evicted yet will still be
+    returned here; stale jobs are harmless (they show a terminal state).
+    """
     entry = _jobs.get(job_id)
     return entry[0] if entry else None
 
