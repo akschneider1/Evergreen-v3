@@ -48,7 +48,9 @@ def run(
     run_id = str(uuid.uuid4())
     job_id = str(uuid.uuid4())
 
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./evergreen.db")
+    import pathlib
+    _db_path = pathlib.Path(__file__).parent / "evergreen.db"
+    DATABASE_URL = f"sqlite:///{_db_path}"
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
     SQLModel.metadata.create_all(engine)
 

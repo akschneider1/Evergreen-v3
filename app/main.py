@@ -13,16 +13,15 @@ import os
 load_dotenv()
 
 # ---------------------------------------------------------------------------
-# Database setup
+# Database setup — SQLite only for MVP
 # ---------------------------------------------------------------------------
 
-# Use EVERGREEN_DB_URL to avoid Replit Cloud Run injecting a postgres
-# DATABASE_URL that we have no driver for.
-DATABASE_URL = os.getenv("EVERGREEN_DB_URL", "sqlite:///./evergreen.db")
-
-# check_same_thread is SQLite-only; omit it for other dialects
-_connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=_connect_args)
+# Replit Cloud Run injects DATABASE_URL pointing to a managed PostgreSQL
+# instance. We don't use it — hardcode SQLite next to the project root so
+# the path is always predictable regardless of working directory.
+_DB_PATH = Path(__file__).parent.parent / "evergreen.db"
+DATABASE_URL = f"sqlite:///{_DB_PATH}"
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 
 def get_db():

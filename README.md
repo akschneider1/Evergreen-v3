@@ -34,7 +34,7 @@ Hit the **Run** button. Replit will install dependencies and start the server. V
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `EVERGREEN_DB_URL` | `sqlite:///./evergreen.db` | Database location |
+| *(none required)* | SQLite file at project root | Database is automatic |
 
 ---
 
