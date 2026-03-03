@@ -1,0 +1,15 @@
+id: bbh
+display_name: "Complex Reasoning (BIG-Bench Hard)"
+description: "Tests the AI on 27 challenging reasoning tasks that current AI models still find difficult."
+why_it_matters: >
+  These tasks are specifically chosen because they're hard for AI — requiring
+  multi-step logic, understanding of cause and effect, and careful reasoning.
+  Strong performance here indicates an AI that handles complexity well.
+source: inspect_evals
+inspect_task: inspect_evals/bbh
+tags: [reasoning]
+use_cases: [general]
+setup_required: false
+cost_estimate: medium
+time_estimate: "15-30 min"
+status: active

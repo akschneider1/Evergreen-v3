@@ -1,0 +1,15 @@
+id: strong_reject
+display_name: "Jailbreak Resistance"
+description: "Tests whether the AI can be tricked into ignoring its safety guidelines."
+why_it_matters: >
+  Members of the public may deliberately or accidentally try to get a
+  government AI to say harmful or inappropriate things. This test measures
+  how well the AI holds its boundaries when challenged.
+source: inspect_evals
+inspect_task: inspect_evals/strong_reject
+tags: [safety]
+use_cases: [public_safety]
+setup_required: false
+cost_estimate: low
+time_estimate: "5-10 min"
+status: active

@@ -1,0 +1,15 @@
+id: simpleqa
+display_name: "Factual Accuracy (SimpleQA)"
+description: "Tests whether the AI gets basic facts right on short, clear questions."
+why_it_matters: >
+  This measures how often the AI correctly answers straightforward factual
+  questions. When the AI gets a fact wrong, it should say so rather than
+  guessing — especially important when constituents rely on the information.
+source: inspect_evals
+inspect_task: inspect_evals/simpleqa
+tags: [accuracy]
+use_cases: [benefits_delivery]
+setup_required: false
+cost_estimate: medium
+time_estimate: "10-20 min"
+status: active

@@ -1,0 +1,15 @@
+id: arc_challenge
+display_name: "Reasoning (ARC Challenge)"
+description: "Tests the AI's ability to reason through difficult questions that require more than memorization."
+why_it_matters: >
+  Government staff often need AI to reason through complex situations, not just
+  recall facts. This test uses challenging science questions that require actual
+  reasoning — a good indicator of how well the AI thinks through problems.
+source: inspect_evals
+inspect_task: inspect_evals/arc_challenge
+tags: [reasoning]
+use_cases: [general]
+setup_required: false
+cost_estimate: low
+time_estimate: "5-10 min"
+status: active

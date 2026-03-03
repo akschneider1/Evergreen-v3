@@ -1,0 +1,15 @@
+id: truthfulqa
+display_name: "Truthfulness & Hallucination"
+description: "Tests whether the AI gives accurate answers or confidently makes things up."
+why_it_matters: >
+  When AI delivers benefits guidance, a made-up eligibility rule or policy detail
+  could harm a constituent who acts on it. This test measures how often the AI
+  tells the truth versus generating plausible-sounding false information.
+source: inspect_evals
+inspect_task: inspect_evals/truthfulqa
+tags: [accuracy, safety]
+use_cases: [benefits_delivery]
+setup_required: false
+cost_estimate: low
+time_estimate: "5-10 min"
+status: active

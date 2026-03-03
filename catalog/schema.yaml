@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: BenchmarkEntry
+type: object
+required:
+  - id
+  - display_name
+  - description
+  - why_it_matters
+  - source
+  - inspect_task
+  - tags
+  - use_cases
+  - setup_required
+  - cost_estimate
+  - time_estimate
+  - status
+properties:
+  id:
+    type: string
+    pattern: "^[a-z0-9_]+$"
+    description: Unique identifier, lowercase alphanumeric and underscores only
+  display_name:
+    type: string
+    maxLength: 60
+  description:
+    type: string
+    maxLength: 160
+    description: One-sentence description shown on catalog card
+  why_it_matters:
+    type: string
+    description: Plain-language explanation — no jargon
+  source:
+    type: string
+    enum: [inspect_evals, team_library, custom]
+  inspect_task:
+    type: string
+    description: Task identifier passed to inspect eval (e.g. inspect_evals/truthfulqa)
+  tags:
+    type: array
+    items:
+      type: string
+      enum: [safety, fairness, accuracy, reasoning, instruction_following]
+    minItems: 1
+  use_cases:
+    type: array
+    items:
+      type: string
+      enum: [benefits_delivery, public_safety, general]
+    minItems: 1
+  setup_required:
+    type: boolean
+    description: false = zero-config (just a model API key); true = needs extra steps
+  cost_estimate:
+    type: string
+    enum: [low, medium, high]
+    description: "low = <$3, medium = $3-15, high = >$15"
+  time_estimate:
+    type: string
+    description: Human-readable estimate e.g. "5-10 min"
+  status:
+    type: string
+    enum: [active, coming_soon, deprecated]
+additionalProperties: false

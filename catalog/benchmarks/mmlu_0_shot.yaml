@@ -1,0 +1,15 @@
+id: mmlu_0_shot
+display_name: "General Knowledge (MMLU)"
+description: "Tests the AI's knowledge across 57 subjects including law, social science, and medicine."
+why_it_matters: >
+  This is a broad measure of how knowledgeable the AI is across the kinds
+  of subjects that come up in government work — law, public policy, health,
+  and social services. A higher score suggests a more capable and informed AI.
+source: inspect_evals
+inspect_task: inspect_evals/mmlu_0_shot
+tags: [reasoning, accuracy]
+use_cases: [general]
+setup_required: false
+cost_estimate: medium
+time_estimate: "20-40 min"
+status: active

@@ -1,0 +1,15 @@
+id: coconot
+display_name: "Contextual Compliance"
+description: "Tests whether the AI correctly refuses harmful requests while helping with safe ones."
+why_it_matters: >
+  A well-behaved AI should decline genuinely harmful requests but not be
+  so cautious it refuses to help with normal questions. This test checks
+  that balance — critical for public-facing government services.
+source: inspect_evals
+inspect_task: inspect_evals/coconot
+tags: [safety]
+use_cases: [public_safety]
+setup_required: false
+cost_estimate: medium
+time_estimate: "15-25 min"
+status: active

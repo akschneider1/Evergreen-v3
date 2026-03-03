@@ -1,0 +1,15 @@
+id: ifeval
+display_name: "Instruction Following"
+description: "Tests whether the AI reliably follows specific instructions and constraints."
+why_it_matters: >
+  Benefits programs often require AI to follow strict rules — only discuss
+  certain topics, use specific formats, or stay within defined boundaries.
+  This test checks how well the AI does what you ask it to do.
+source: inspect_evals
+inspect_task: inspect_evals/ifeval
+tags: [instruction_following]
+use_cases: [benefits_delivery]
+setup_required: false
+cost_estimate: low
+time_estimate: "5-10 min"
+status: active

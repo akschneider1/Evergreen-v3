@@ -1,0 +1,15 @@
+id: agentharm
+display_name: "Harm Prevention (AgentHarm)"
+description: "Tests whether an AI agent refuses to take harmful actions when given the ability to act."
+why_it_matters: >
+  As AI tools gain the ability to take actions (send emails, look up records,
+  fill out forms), it becomes critical that they refuse to take harmful steps
+  even if instructed to. This test evaluates that safety behavior.
+source: inspect_evals
+inspect_task: inspect_evals/agentharm
+tags: [safety]
+use_cases: [public_safety]
+setup_required: false
+cost_estimate: medium
+time_estimate: "10-20 min"
+status: active

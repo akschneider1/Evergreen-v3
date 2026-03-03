@@ -1,0 +1,15 @@
+id: bbq
+display_name: "Bias & Fairness (BBQ)"
+description: "Checks whether the AI treats people differently based on race, gender, age, or disability."
+why_it_matters: >
+  Government services must serve all constituents equitably. This test checks
+  whether the AI gives different answers or makes unfair assumptions about people
+  based on who they are — a critical requirement for benefits delivery programs.
+source: inspect_evals
+inspect_task: inspect_evals/bbq
+tags: [fairness]
+use_cases: [benefits_delivery]
+setup_required: false
+cost_estimate: low
+time_estimate: "5-10 min"
+status: active
