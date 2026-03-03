@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Running evaluation{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto text-center py-12">
+  <h1 class="text-2xl font-bold mb-2">Running your evaluation</h1>
+  <p class="text-base-content/60 mb-8">This typically takes 5–30 minutes depending on the benchmark. You can leave this page — results are saved automatically.</p>
+
+  <!-- Status region — HTMX updates this every 2s -->
+  <div id="status-region"
+       hx-get="/run/{{ job_id }}/status"
+       hx-trigger="load, every 2s"
+       hx-swap="innerHTML">
+    {% include "partials/run_status.html" %}
+  </div>
+</div>
+{% endblock %}

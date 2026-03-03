@@ -1,0 +1,21 @@
+<div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+     hx-get="/benchmark/{{ b.id }}"
+     hx-target="#detail-panel"
+     hx-swap="innerHTML"
+     hx-push-url="false">
+  <div class="card-body p-4">
+    <div class="flex items-start justify-between gap-2">
+      <h3 class="card-title text-base">{{ b.display_name }}</h3>
+      <div class="flex gap-1 flex-shrink-0">
+        {% for tag in b.tags %}
+        <span class="badge badge-outline badge-xs">{{ tag | replace('_', ' ') }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <p class="text-sm text-base-content/70">{{ b.description }}</p>
+    <div class="flex gap-3 mt-2 text-xs text-base-content/50">
+      <span>⏱ {{ b.time_estimate }}</span>
+      <span>💰 Cost: {{ b.cost_estimate }}</span>
+    </div>
+  </div>
+</div>

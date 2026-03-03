@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Run History{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-3xl font-bold">Run History</h1>
+    <p class="text-base-content/60 mt-1">All evaluations run by your team.</p>
+  </div>
+  <a href="/" class="btn btn-primary">+ New evaluation</a>
+</div>
+
+{% if runs %}
+<div class="overflow-x-auto">
+  <table class="table bg-base-100 shadow-sm">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Benchmark</th>
+        <th>Model</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Pass Rate</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in runs %}
+      <tr class="hover">
+        <td class="font-medium">{{ run.name }}</td>
+        <td class="text-sm text-base-content/70">{{ run.benchmark_id }}</td>
+        <td class="text-sm">{{ run.model }}</td>
+        <td class="text-sm text-base-content/60">
+          {{ run.created_at.strftime('%b %d, %Y') if run.created_at else '—' }}
+        </td>
+        <td>
+          {% if run.status == 'complete' %}
+            <span class="badge badge-success badge-sm">Complete</span>
+          {% elif run.status == 'running' %}
+            <span class="badge badge-warning badge-sm">Running</span>
+          {% elif run.status == 'failed' %}
+            <span class="badge badge-error badge-sm">Failed</span>
+          {% else %}
+            <span class="badge badge-ghost badge-sm">Pending</span>
+          {% endif %}
+        </td>
+        <td class="font-semibold">
+          {% if run.pass_rate is not none %}
+            {{ (run.pass_rate * 100) | round | int }}%
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>
+          {% if run.status == 'complete' %}
+            <a href="/run/{{ run.id }}/report" class="btn btn-ghost btn-xs">View report →</a>
+          {% elif run.status == 'failed' %}
+            <span class="text-xs text-error">{{ run.error[:60] if run.error else '' }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="text-center py-16 text-base-content/40">
+  <p class="text-lg">No evaluations have been run yet.</p>
+  <a href="/" class="btn btn-primary btn-sm mt-4">Run your first evaluation →</a>
+</div>
+{% endif %}
+
+{% endblock %}

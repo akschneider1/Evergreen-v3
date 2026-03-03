@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Team Library{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-3xl font-bold">Team Library</h1>
+    <p class="text-base-content/60 mt-1">Custom evaluation benchmarks built by your team.</p>
+  </div>
+  <a href="/library/new" class="btn btn-primary">+ New benchmark</a>
+</div>
+
+{% if benchmarks %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {% for b in benchmarks %}
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body p-4">
+      <div class="flex items-start justify-between">
+        <h3 class="card-title text-base">{{ b.name }}</h3>
+        <span class="badge {% if b.status == 'published' %}badge-success{% else %}badge-ghost{% endif %} badge-sm">
+          {{ b.status | title }}
+        </span>
+      </div>
+      <p class="text-sm text-base-content/70 mt-1">{{ b.description }}</p>
+      <div class="text-xs text-base-content/50 mt-2">Version {{ b.version }}</div>
+      <div class="card-actions mt-3">
+        <a href="/library/{{ b.id }}" class="btn btn-ghost btn-sm">Edit →</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 text-base-content/40">
+  <p class="text-lg">No team benchmarks yet.</p>
+  <p class="text-sm mt-1">Create a custom evaluation from your own test cases.</p>
+  <a href="/library/new" class="btn btn-primary btn-sm mt-4">Create your first benchmark →</a>
+</div>
+{% endif %}
+
+{% endblock %}

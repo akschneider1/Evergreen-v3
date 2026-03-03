@@ -1,0 +1,16 @@
+<tr>
+  <td class="text-base-content/40 text-xs">{{ loop.index if loop else '' }}</td>
+  <td class="text-sm max-w-xs truncate" title="{{ case.question }}">{{ case.question }}</td>
+  <td class="text-sm max-w-xs truncate text-base-content/70" title="{{ case.expected_answer }}">{{ case.expected_answer }}</td>
+  <td><span class="badge badge-ghost badge-xs">{{ case.metric | replace('_', ' ') }}</span></td>
+  <td>
+    {% if case.severity == 'critical' %}
+      <span class="badge badge-error badge-xs">critical</span>
+    {% elif case.severity == 'high' %}
+      <span class="badge badge-warning badge-xs">high</span>
+    {% else %}
+      <span class="badge badge-ghost badge-xs">{{ case.severity }}</span>
+    {% endif %}
+  </td>
+  <td><span class="badge badge-ghost badge-xs">{{ case.status }}</span></td>
+</tr>

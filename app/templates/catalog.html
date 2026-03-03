@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Benchmark Catalog{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-3xl font-bold">Benchmark Catalog</h1>
+  <p class="text-base-content/60 mt-1">Choose an evaluation to run against your AI. No technical knowledge required.</p>
+</div>
+
+<!-- Tag filter -->
+<div class="flex flex-wrap gap-2 mb-8">
+  <a href="/" class="btn btn-sm {% if not active_tag %}btn-primary{% else %}btn-ghost{% endif %}">All</a>
+  {% for tag_id, tag_label in tag_labels %}
+  <a href="/?tag={{ tag_id }}" class="btn btn-sm {% if active_tag == tag_id %}btn-primary{% else %}btn-ghost{% endif %}">
+    {{ tag_label }}
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Detail panel (populated by HTMX) -->
+<div id="detail-panel"></div>
+
+<!-- Recommended section -->
+{% if recommended %}
+<div class="mb-8">
+  <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+    <span class="badge badge-primary badge-sm">Recommended</span>
+    Start here for government use cases
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for b in recommended %}
+    {% include "partials/benchmark_card.html" %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- All / filtered benchmarks -->
+{% if benchmarks %}
+<div>
+  <h2 class="text-lg font-semibold mb-3">
+    {% if active_tag %}{{ active_tag | title | replace('_', ' ') }} benchmarks{% else %}All benchmarks{% endif %}
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for b in benchmarks %}
+    {% include "partials/benchmark_card.html" %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not recommended and not benchmarks %}
+<div class="text-center py-16 text-base-content/40">
+  <p class="text-lg">No benchmarks match this filter.</p>
+  <a href="/" class="btn btn-ghost btn-sm mt-2">Clear filter</a>
+</div>
+{% endif %}
+
+{% endblock %}

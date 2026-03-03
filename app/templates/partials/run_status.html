@@ -1,0 +1,31 @@
+{% if not job %}
+<div class="alert alert-error">
+  <span>This run has expired or could not be found. <a href="/history" class="link">View run history</a></span>
+</div>
+{% elif job.status == "failed" %}
+<div class="alert alert-error">
+  <div>
+    <p class="font-semibold">The evaluation encountered an error.</p>
+    <p class="text-sm mt-1">{{ job.error or "An unexpected error occurred." }}</p>
+    <a href="/" class="btn btn-sm btn-ghost mt-3">← Back to catalog</a>
+  </div>
+</div>
+{% elif job.status == "complete" %}
+<!-- Redirect automatically when complete -->
+<div class="alert alert-success mb-4">
+  <span>Evaluation complete!</span>
+</div>
+<div hx-get="/run/{{ job_id }}/report"
+     hx-trigger="load"
+     hx-target="body"
+     hx-push-url="/run/{{ job_id }}/report"
+     hx-swap="outerHTML">
+  <p class="text-base-content/60">Loading your report...</p>
+</div>
+{% else %}
+<div class="w-full">
+  <progress class="progress progress-primary w-full mb-3" value="{{ job.percent }}" max="100"></progress>
+  <p class="text-base font-medium">{{ job.step }}</p>
+  <p class="text-sm text-base-content/50 mt-1">{{ job.percent }}% complete</p>
+</div>
+{% endif %}

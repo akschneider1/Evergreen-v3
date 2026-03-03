@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Evergreen{% endblock %} — AI Evaluation Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body class="bg-base-200 min-h-screen">
+
+  <!-- Navigation -->
+  <div class="navbar bg-base-100 shadow-sm px-4">
+    <div class="navbar-start">
+      <a href="/" class="text-xl font-bold text-primary">🌲 Evergreen</a>
+      <span class="ml-2 badge badge-ghost badge-sm">v3</span>
+    </div>
+    <div class="navbar-center hidden md:flex">
+      <ul class="menu menu-horizontal px-1 gap-1">
+        <li><a href="/" class="{% if request.url.path == '/' %}active{% endif %}">Benchmark Catalog</a></li>
+        <li><a href="/history" class="{% if request.url.path == '/history' %}active{% endif %}">Run History</a></li>
+        <li><a href="/library" class="{% if '/library' in request.url.path %}active{% endif %}">Team Library</a></li>
+      </ul>
+    </div>
+    <div class="navbar-end">
+      <span class="text-xs text-base-content/40">Built on <a href="https://inspect.aisi.org.uk/" target="_blank" class="link">AISI Inspect</a></span>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

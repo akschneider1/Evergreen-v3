@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{% if benchmark %}{{ benchmark.name }}{% else %}New Benchmark{% endif %}{% endblock %}
+
+{% block content %}
+{% if not benchmark %}
+<!-- New benchmark form -->
+<div class="max-w-xl">
+  <h1 class="text-3xl font-bold mb-2">New Team Benchmark</h1>
+  <p class="text-base-content/60 mb-6">Create a named collection of test cases your team can run repeatedly.</p>
+
+  <form action="/library" method="post" class="card bg-base-100 shadow-sm p-6">
+    <div class="form-control mb-4">
+      <label class="label"><span class="label-text font-medium">Benchmark name</span></label>
+      <input type="text" name="name" class="input input-bordered" required
+             placeholder="e.g. Benefits Chatbot Safety Suite">
+    </div>
+    <div class="form-control mb-4">
+      <label class="label"><span class="label-text font-medium">Description</span></label>
+      <textarea name="description" class="textarea textarea-bordered" rows="2"
+                placeholder="What does this benchmark test and why does it matter?"></textarea>
+    </div>
+    <div class="form-control mb-4">
+      <label class="label"><span class="label-text font-medium">Tags <span class="text-base-content/40">(comma-separated)</span></span></label>
+      <input type="text" name="tags" class="input input-bordered input-sm"
+             placeholder="safety, accuracy">
+    </div>
+    <div class="form-control mb-6">
+      <label class="label"><span class="label-text font-medium">Use cases <span class="text-base-content/40">(comma-separated)</span></span></label>
+      <input type="text" name="use_cases" class="input input-bordered input-sm"
+             placeholder="benefits_delivery, public_safety">
+    </div>
+    <div class="flex gap-3">
+      <button type="submit" class="btn btn-primary">Create benchmark →</button>
+      <a href="/library" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% else %}
+<!-- Benchmark editor -->
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <a href="/library" class="text-sm text-base-content/50 hover:text-base-content">← Team Library</a>
+    <h1 class="text-2xl font-bold mt-1">{{ benchmark.name }}</h1>
+    <p class="text-base-content/60 text-sm mt-1">{{ benchmark.description }}</p>
+  </div>
+  <div class="flex gap-2">
+    {% if benchmark.status != 'published' %}
+    <form action="/library/{{ benchmark.id }}/publish" method="post">
+      <button type="submit" class="btn btn-success btn-sm">Publish →</button>
+    </form>
+    {% else %}
+    <span class="badge badge-success">Published</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Test case table -->
+<div class="card bg-base-100 shadow-sm">
+  <div class="card-body p-4">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold">Test Cases <span class="badge badge-ghost badge-sm ml-1">{{ cases | length }}</span></h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="table table-sm w-full" id="cases-table">
+        <thead>
+          <tr>
+            <th class="w-8">#</th>
+            <th>Question</th>
+            <th>Expected answer</th>
+            <th>Metric</th>
+            <th>Severity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="cases-body">
+          {% for case in cases %}
+          {% include "partials/case_row.html" %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add case form -->
+    <div class="mt-6 p-4 bg-base-200 rounded-lg">
+      <h3 class="font-medium text-sm mb-3">Add a test case</h3>
+      <form hx-post="/library/{{ benchmark.id }}/cases"
+            hx-target="#cases-body"
+            hx-swap="beforeend"
+            hx-on::after-request="this.reset()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <div class="form-control">
+            <label class="label label-text text-xs">Question</label>
+            <input type="text" name="question" class="input input-bordered input-sm" required
+                   placeholder="What should the AI be asked?">
+          </div>
+          <div class="form-control">
+            <label class="label label-text text-xs">Expected answer</label>
+            <input type="text" name="expected_answer" class="input input-bordered input-sm" required
+                   placeholder="What should the AI say?">
+          </div>
+          <div class="form-control">
+            <label class="label label-text text-xs">Context <span class="text-base-content/40">(optional)</span></label>
+            <input type="text" name="context" class="input input-bordered input-sm"
+                   placeholder="Background info for the AI">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="form-control">
+              <label class="label label-text text-xs">Metric</label>
+              <select name="metric" class="select select-bordered select-sm">
+                <option value="accuracy">Accuracy</option>
+                <option value="safety">Safety</option>
+                <option value="ease_of_use">Ease of use</option>
+                <option value="effectiveness">Effectiveness</option>
+                <option value="emotion">Tone & emotion</option>
+              </select>
+            </div>
+            <div class="form-control">
+              <label class="label label-text text-xs">Severity</label>
+              <select name="severity" class="select select-bordered select-sm">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Add test case</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
