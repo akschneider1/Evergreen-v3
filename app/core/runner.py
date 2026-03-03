@@ -2,7 +2,6 @@
 
 import asyncio
 import tempfile
-from pathlib import Path
 
 from sqlmodel import Session
 
@@ -42,23 +41,21 @@ async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
 
         inspect_model = MODEL_MAP.get(run.model, run.model)
 
-        # Step 2 — load the Inspect task
-        job_store.update_job(job_id, step="Preparing evaluation...", percent=15, status="running")
-        task = _load_task(benchmark.inspect_task)
-
-        # Step 3 — run eval in thread pool (inspect_eval is blocking)
-        job_store.update_job(job_id, step="Connecting to model...", percent=25, status="running")
+        # Step 2 — run eval in thread pool (inspect_eval is blocking)
+        # Pass the task string directly — Inspect resolves it via its own
+        # task registry, the same way the CLI does. No manual import needed.
+        job_store.update_job(job_id, step="Connecting to model...", percent=20, status="running")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             job_store.update_job(
                 job_id,
                 step="Running evaluations — this may take a few minutes...",
-                percent=35,
+                percent=30,
                 status="running",
             )
             logs = await asyncio.to_thread(
                 inspect_eval,
-                task,
+                benchmark.inspect_task,
                 model=inspect_model,
                 log_dir=tmp_dir,
             )
@@ -96,21 +93,3 @@ async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
         raise
 
 
-def _load_task(inspect_task: str):
-    """Dynamically load an Inspect task by its dotted path string.
-
-    inspect_task is e.g. 'inspect_evals/truthfulqa' which maps to
-    the inspect_evals package function name.
-    """
-    import importlib
-
-    # Convert 'inspect_evals/truthfulqa' → module 'inspect_evals', attr 'truthfulqa'
-    if "/" in inspect_task:
-        package, name = inspect_task.split("/", 1)
-        # inspect_evals uses underscores in function names
-        func_name = name.replace("-", "_")
-        mod = importlib.import_module(package)
-        task_fn = getattr(mod, func_name)
-        return task_fn()
-
-    raise ValueError(f"Unsupported inspect_task format: {inspect_task}")
