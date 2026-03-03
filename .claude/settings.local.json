@@ -13,7 +13,8 @@
       "WebFetch(domain:ukgovernmentbeis.github.io)",
       "Bash(git add CLAUDE.md && git rm PLAN.md && git add .replit)",
       "Bash(git commit -m \"$\\(cat <<'EOF'\nAdd CLAUDE.md and retire v2 research plan\n\nReplace the Evergreen v2 research document \\(PLAN.md\\) with CLAUDE.md —\na lean developer reference covering design principles, tech stack,\nfile structure, and definition of done for Evergreen v3. This\ncaptures the decisions made in the v3 brainstorm before development begins.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git push origin main)"
+      "Bash(git push origin main)",
+      "Bash(git status && git stash pop 2>/dev/null; git restore --staged .github 2>/dev/null; git reset HEAD .github 2>/dev/null; git add cli.py tests/ && git status)"
     ]
   }
 }
