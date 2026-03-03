@@ -23,6 +23,22 @@ MODEL_MAP: dict[str, str] = {
 }
 
 
+def _load_task(inspect_task: str):
+    """Load an Inspect task by importing from its submodule.
+
+    inspect_task format: "inspect_evals/bbq" → imports inspect_evals.bbq.bbq()
+    """
+    import importlib
+
+    if "/" in inspect_task:
+        package, name = inspect_task.split("/", 1)
+        func_name = name.replace("-", "_")
+        mod = importlib.import_module(f"{package}.{func_name}")
+        task_fn = getattr(mod, func_name)
+        return task_fn()
+    raise ValueError(f"Unsupported inspect_task format: {inspect_task}")
+
+
 async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
     """Execute an Inspect eval for the given Run, save HTML report to DB.
 
@@ -41,21 +57,23 @@ async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
 
         inspect_model = MODEL_MAP.get(run.model, run.model)
 
-        # Step 2 — run eval in thread pool (inspect_eval is blocking)
-        # Pass the task string directly — Inspect resolves it via its own
-        # task registry, the same way the CLI does. No manual import needed.
-        job_store.update_job(job_id, step="Connecting to model...", percent=20, status="running")
+        # Step 2 — load the Inspect task object
+        job_store.update_job(job_id, step="Preparing evaluation...", percent=15, status="running")
+        task = _load_task(benchmark.inspect_task)
+
+        # Step 3 — run eval in thread pool (inspect_eval is blocking)
+        job_store.update_job(job_id, step="Connecting to model...", percent=25, status="running")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             job_store.update_job(
                 job_id,
                 step="Running evaluations — this may take a few minutes...",
-                percent=30,
+                percent=35,
                 status="running",
             )
             logs = await asyncio.to_thread(
                 inspect_eval,
-                benchmark.inspect_task,
+                task,
                 model=inspect_model,
                 log_dir=tmp_dir,
             )
