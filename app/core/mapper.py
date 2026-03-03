@@ -271,7 +271,7 @@ def render_report(data: ReportData) -> str:
     </div>
 
   </div><!-- end tabs -->
-</div>
+</div><!-- end max-w-5xl -->
 </body>
 </html>"""
 
