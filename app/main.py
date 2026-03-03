@@ -16,8 +16,13 @@ load_dotenv()
 # Database setup
 # ---------------------------------------------------------------------------
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./evergreen.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# Use EVERGREEN_DB_URL to avoid Replit Cloud Run injecting a postgres
+# DATABASE_URL that we have no driver for.
+DATABASE_URL = os.getenv("EVERGREEN_DB_URL", "sqlite:///./evergreen.db")
+
+# check_same_thread is SQLite-only; omit it for other dialects
+_connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=_connect_args)
 
 
 def get_db():
