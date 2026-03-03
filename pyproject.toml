@@ -16,7 +16,7 @@ dependencies = [
     "typer>=0.12",
     "python-dotenv>=1.0",
     "inspect-ai>=0.3",
-    "inspect-evals>=0.4",
+    "inspect-evals>=0.3",
     "weasyprint>=62",
 ]
 
