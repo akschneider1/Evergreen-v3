@@ -44,8 +44,10 @@ async def catalog_page(
     use_cases = [use_case] if use_case else None
     benchmarks = filter_benchmarks(tags=tags, use_cases=use_cases)
 
-    # Pinned "recommended" set always shown at top
-    recommended_ids = {"truthfulqa", "bbq", "ifeval", "strong_reject"}
+    # Pinned "recommended" set always shown at top.
+    # strong_reject and coconot are most reliable for demos (strong_reject
+    # uses GitHub CSV, coconot is a small HF dataset — both avoid large downloads).
+    recommended_ids = {"strong_reject", "coconot", "truthfulqa", "bbq"}
     recommended = [b for b in benchmarks if b.id in recommended_ids]
     rest = [b for b in benchmarks if b.id not in recommended_ids]
 
