@@ -19,7 +19,7 @@ def create_job(job_id: str, run_id: str) -> JobStatus:
     return job
 
 
-def update_job(job_id: str, *, step: str, percent: int, status: str = "running", error: Optional[str] = None) -> None:
+def update_job(job_id: str, *, step: str, percent: int, status: str = "running", error: Optional[str] = None, error_detail: Optional[str] = None) -> None:
     """Update step label, percent, and status for an existing job."""
     if job_id not in _jobs:
         return
@@ -31,6 +31,7 @@ def update_job(job_id: str, *, step: str, percent: int, status: str = "running",
         percent=percent,
         status=status,
         error=error,
+        error_detail=error_detail,
     )
     _jobs[job_id] = (updated, created_at)
 

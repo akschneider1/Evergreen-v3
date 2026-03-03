@@ -82,4 +82,5 @@ class JobStatus(BaseModel):
     step: str = "Starting..."
     percent: int = 0
     status: str = "pending"          # pending | running | complete | failed
-    error: Optional[str] = None
+    error: Optional[str] = None       # short user-facing message
+    error_detail: Optional[str] = None  # full traceback for the debug dropdown

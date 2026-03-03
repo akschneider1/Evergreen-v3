@@ -2,6 +2,7 @@
 
 import asyncio
 import tempfile
+import traceback
 
 from sqlmodel import Session
 
@@ -21,6 +22,40 @@ MODEL_MAP: dict[str, str] = {
     "claude-haiku-4-5": "anthropic/claude-haiku-4-5-20251001",
     "gemini-2.0-flash": "google/gemini-2.0-flash",
 }
+
+
+def _classify_error(exc: Exception) -> str:
+    """Return a short, user-friendly error message based on the exception type."""
+    msg = str(exc)
+    low = msg.lower()
+
+    if any(k in msg for k in ("Hub", "snapshot folder", "locate the files on the Hub")):
+        return (
+            "Dataset download failed: could not reach Hugging Face Hub. "
+            "This is usually a transient network issue — try running again. "
+            "If it keeps failing, try a benchmark that doesn't require dataset downloads "
+            "(IFEval, StrongREJECT, CoCoNot, or AgentHarm work offline)."
+        )
+    if "api_key" in low or "apikey" in low or "authentication" in low or "unauthorized" in low or "invalid x-api-key" in low:
+        return (
+            "API key error: the model provider rejected the request. "
+            "Check that the correct API key is set in your Replit Secrets "
+            "(OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY)."
+        )
+    if "rate limit" in low or "ratelimit" in low or "429" in msg:
+        return (
+            "Rate limit hit: the model provider is throttling requests. "
+            "Wait a minute and try again, or switch to a different model."
+        )
+    if "timeout" in low or "timed out" in low:
+        return (
+            "The evaluation timed out. The benchmark may be too large for this run. "
+            "Try again or contact support if this persists."
+        )
+    if "no module named" in low or "importerror" in low or "modulenotfounderror" in low:
+        return f"Missing dependency: {msg}. The Replit environment may need a redeploy."
+    # Fallback — include the raw message so it's not a black box
+    return msg if len(msg) <= 300 else msg[:297] + "..."
 
 
 def _load_task(inspect_task: str):
@@ -97,8 +132,9 @@ async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
         job_store.update_job(job_id, step="Complete", percent=100, status="complete")
 
     except Exception as exc:
+        tb = traceback.format_exc()
         run.status = "failed"
-        run.error = str(exc)
+        run.error = tb  # full traceback stored in DB
         db.add(run)
         db.commit()
         job_store.update_job(
@@ -106,7 +142,8 @@ async def run_benchmark(run: Run, job_id: str, db: Session) -> None:
             step="Evaluation failed",
             percent=0,
             status="failed",
-            error=str(exc),
+            error=_classify_error(exc),
+            error_detail=tb,
         )
         raise
 
